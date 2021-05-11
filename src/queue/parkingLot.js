@@ -33,16 +33,19 @@ class ParkingLot {
    *  the license plate number of the car entering
    */
   enter(licensePlateNumber) {
-    //console.log(this.spaces);
+    //foundSpot identifies if a car is able to find a spot, if they do they will not have to wait in line.
     let foundSpot = false;
-    for (let i = 0; i < this.spaces.length; i++){
-      if (this.spaces[i] === 'vacant'){
+    //cycle through spaces array looking for a vacant spot
+    for (let i = 0; i < this.spaces.length; i++) {
+      if (this.spaces[i] === "vacant") {
+        //if a vacant spot is found, park the car, flag foundSpot is true, then stop the loop by setting i to spaces.length
         this.spaces[i] = licensePlateNumber;
         foundSpot = true;
         i = this.spaces.length;
       }
     }
-    if (foundSpot == false){
+    //if we were unable to find a spot, put the car in the parking queue.
+    if (foundSpot == false) {
       this.queue.enqueue(licensePlateNumber);
     }
   }
@@ -53,32 +56,36 @@ class ParkingLot {
    *    *  the license plate number of the car leaving.
    */
   leave(licensePlateNumber) {
+    //parked determines if a car leaving was already parked or not.
     let parked = false;
     //console.log(licensePlateNumber);
-    if (licensePlateNumber != null){
-    this.spaces.forEach((space, index) =>{
-      if (space === licensePlateNumber){
-        this.revenue = this.revenue + this.rate;
-        this.spaces[index]=this.queue.dequeue();
-        parked = true;
-      }
-    })
-      
-    if (parked == false){
-      let tempQ = [];
-      let found = false;
-      while (this.queue.first != null){
-        if (this.queue.peek() === licensePlateNumber){
-          this.queue.dequeue();
-        } else {
-          tempQ.push(this.queue.dequeue());
+    if (licensePlateNumber != null) {
+      //cycle through each parking space looking for the car's liscense plate.
+      this.spaces.forEach((space, index) => {
+        //if a space has the liscense plate, we charge them the rate and add it to our revenue, then park the next car in the queue.
+        if (space === licensePlateNumber) {
+          this.revenue = this.revenue + this.rate;
+          this.spaces[index] = this.queue.dequeue();
+          parked = true;
         }
+      });
+      //if we were unable to find the car parked, that means they were in the queue and we must remove them from the queue.
+      if (parked == false) {
+        //create a temp queue to put cars into while we find the car to remove.
+        let tempQ = [];
+        while (this.queue.first != null) {
+          //once we find the car, remove it from the queue, otherwise keep pushing the queue into the temp queue.
+          if (this.queue.peek() === licensePlateNumber) {
+            this.queue.dequeue();
+          } else {
+            tempQ.push(this.queue.dequeue());
+          }
+        }
+        //now enqueue the tempQ into the actual queue without the car that left.
+        tempQ.forEach((licsense) => {
+          this.queue.enqueue(licsense);
+        });
       }
-      tempQ.forEach((licsense) =>{
-         this.queue.enqueue(licsense);
-      })
-      
-    }
     }
   }
 
